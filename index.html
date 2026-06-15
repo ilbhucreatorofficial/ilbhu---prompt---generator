@@ -1,66 +1,432 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ILBHU Prompt Generator</title>
+  <title>ILBHU Pro Prompt Generator</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      background: #f9f9f9;
-    }
-    header {
-      background: #4CAF50;
-      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
       padding: 20px;
     }
-    img {
-      border-radius: 50%;
-      margin-top: 20px;
-      width: 150px;
-      height: 150px;
+    .container {
+      max-width: 900px;
+      width: 100%;
     }
-    h1 {
-      margin: 10px 0;
+    /* लोगो */
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin: 30px 0 10px;
+      flex-wrap: wrap;
     }
-    p {
-      font-size: 18px;
-      color: #333;
+    .logo svg {
+      width: 60px;
+      height: 60px;
+      filter: drop-shadow(0 0 10px #fbbf24);
     }
-    footer {
-      margin-top: 30px;
-      padding: 10px;
-      background: #eee;
+    .logo h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #fbbf24, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    a {
-      margin: 0 10px;
-      text-decoration: none;
-      color: #4CAF50;
-      font-weight: bold;
+    .subtitle {
+      text-align: center;
+      color: #a5b4fc;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+    /* ग्लास कार्ड */
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 30px;
+      margin-bottom: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .step-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #e0e7ff;
+    }
+    /* कैटेगरी कार्ड्स */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .cat-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      padding: 15px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .cat-card:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: #fbbf24;
+    }
+    .cat-card.active {
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.15);
+      box-shadow: 0 0 20px rgba(251,191,36,0.3);
+    }
+    .cat-emoji {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+    /* इनपुट फील्ड */
+    .input-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #c7d2fe;
+      font-weight: 500;
+    }
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    input, textarea, select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 14px 16px;
+      font-size: 1rem;
+      color: white;
+      outline: none;
+      font-family: inherit;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    input::placeholder, textarea::placeholder {
+      color: #9ca3af;
+    }
+    .mic-btn {
+      background: #fbbf24;
+      border: none;
+      color: #1e1b4b;
+      font-size: 1.3rem;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .mic-btn:hover {
+      background: #f59e0b;
+    }
+    select {
+      background: rgba(0,0,0,0.4);
+    }
+    /* बटन */
+    .generate-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+    .generate-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #f472b6, #a78bfa);
+      transform: scale(1.02);
+    }
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .copy-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fbbf24;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+      float: right;
+      margin-bottom: 10px;
+    }
+    .copy-btn:hover {
+      background: rgba(251,191,36,0.2);
+    }
+    .output-box {
+      background: #0f0f1a;
+      border-radius: 16px;
+      padding: 20px;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      border: 1px solid #334155;
+      clear: both;
+    }
+    .footer {
+      text-align: center;
+      color: #6b7280;
+      margin: 20px 0;
+      font-size: 0.9rem;
+    }
+    .hidden {
+      display: none;
+    }
+    @media (max-width: 600px) {
+      .logo h1 { font-size: 1.8rem; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>ILBHU Prompt Generator</h1>
-    <p>Smart website for creators, learners & professionals</p>
-  </header>
+  <div class="container">
+    <!-- लोगो -->
+    <div class="logo">
+      <svg viewBox="0 0 100 100" fill="none">
+        <path d="M55 10 L30 55 H45 L35 90 L75 40 H55 L65 10Z" fill="url(#gold)" stroke="#fbbf24" stroke-width="3"/>
+        <defs>
+          <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fbbf24"/>
+            <stop offset="100%" stop-color="#f59e0b"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <h1>ILBHU Pro Prompt Generator</h1>
+    </div>
+    <div class="subtitle">सिर्फ़ एक क्लिक — आपकी सोच को प्रोफ़ेशनल AI प्रॉम्प्ट में बदलें</div>
 
-  <!-- Profile Section -->
-  <img src="your-photo.jpg" alt="Neelkanth">
-  <h2>Neelkanth | ILBHU Creator Official</h2>
-  <p>Founder of GOOD HABIT BAD HABIT & ILBHU Prompt Generator</p>
-  <p>Raipur, Chhattisgarh, India</p>
+    <!-- स्टेप 1: कैटेगरी -->
+    <div class="glass">
+      <div class="step-title">1️⃣ आप क्या बनवाना चाहते हैं?</div>
+      <div class="category-grid" id="categoryGrid">
+        <div class="cat-card" data-cat="website"><span class="cat-emoji">🌐</span>वेबसाइट</div>
+        <div class="cat-card" data-cat="thumbnail"><span class="cat-emoji">🖼️</span>YouTube थंबनेल</div>
+        <div class="cat-card" data-cat="blog"><span class="cat-emoji">📝</span>ब्लॉग / आर्टिकल</div>
+        <div class="cat-card" data-cat="email"><span class="cat-emoji">📧</span>ईमेल</div>
+        <div class="cat-card" data-cat="social"><span class="cat-emoji">📱</span>सोशल मीडिया</div>
+        <div class="cat-card" data-cat="code"><span class="cat-emoji">💻</span>कोड / प्रोग्राम</div>
+        <div class="cat-card" data-cat="other"><span class="cat-emoji">✨</span>अन्य</div>
+      </div>
+    </div>
 
-  <!-- Social Links -->
-  <footer>
-    <a href="https://instagram.com/goodhabitbadhabit">Instagram</a>
-    <a href="https://youtube.com/@goodhabitbadhabit">YouTube</a>
-    <a href="https://linkedin.com/in/neelkanth">LinkedIn</a>
-    <a href="https://x.com/ilbhucreator">Twitter/X</a>
-  </footer>
+    <!-- स्टेप 2: डिटेल्स फॉर्म (डायनामिक) -->
+    <div class="glass hidden" id="detailsSection">
+      <div class="step-title">2️⃣ थोड़ा विस्तार बताएँ</div>
+      <form id="detailsForm">
+        <!-- डायनामिक फील्ड्स यहाँ JS से भरेंगे -->
+      </form>
+      <button class="generate-btn" id="generateBtn">⚡ जनरेट प्रोफेशनल प्रॉम्प्ट</button>
+    </div>
+
+    <!-- आउटपुट -->
+    <div class="glass hidden" id="outputSection">
+      <button class="copy-btn" id="copyBtn">📋 कॉपी करें</button>
+      <div style="clear:both;"></div>
+      <div class="output-box" id="outputText"></div>
+    </div>
+
+    <div class="footer">Made with ❤️ using ILBHU — No API, Pure Magic</div>
+  </div>
+
+  <script>
+    // ------ वॉइस इनपुट सहायक ------
+    function attachMic(btnId, targetInputId) {
+      const micBtn = document.getElementById(btnId);
+      const input = document.getElementById(targetInputId);
+      if (!micBtn || !input) return;
+      micBtn.addEventListener('click', () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          alert('आपके ब्राउज़र में वॉइस सपोर्ट नहीं है।');
+          return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'hi-IN';
+        recognition.interimResults = false;
+        recognition.start();
+        recognition.onresult = (event) => {
+          input.value = event.results[0][0].transcript;
+        };
+        recognition.onerror = (e) => alert('वॉइस एरर: ' + e.error);
+      });
+    }
+
+    // ------ कैटेगरी के अनुसार फॉर्म फील्ड्स ------
+    const categoryConfig = {
+      website: {
+        fields: [
+          { label: 'वेबसाइट का उद्देश्य / नाम', id: 'webPurpose', placeholder: 'जैसे: फोटोग्राफी पोर्टफोलियो', type: 'text' },
+          { label: 'कितने पेज चाहिए?', id: 'webPages', placeholder: 'जैसे: होम, अबाउट, गैलरी', type: 'text' },
+          { label: 'डिज़ाइन शैली', id: 'webStyle', type: 'select', options: ['मॉडर्न और मिनिमल', 'कलरफुल और क्रिएटिव', 'डार्क थीम', 'क्लासिक'] },
+          { label: 'कोई विशेष फीचर?', id: 'webFeatures', placeholder: 'जैसे: कॉन्टैक्ट फॉर्म, ब्लॉग', type: 'text' }
+        ],
+        template: (vals) => `तुम एक एक्सपर्ट वेब डेवलपर और UI/UX डिज़ाइनर हो। "${vals.webPurpose}" के लिए एक पूरी वेबसाइट का HTML/CSS कोड लिखो। वेबसाइट में ${vals.webPages} पेज हों। डिज़ाइन ${vals.webStyle} शैली में हो। विशेषताएँ: ${vals.webFeatures || 'कोई नहीं'}। कोड साफ़, कमेंटेड और रिस्पॉन्सिव हो।`
+      },
+      thumbnail: {
+        fields: [
+          { label: 'वीडियो का विषय', id: 'thumbTopic', placeholder: 'जैसे: बेस्ट फोन अंडर 20000', type: 'text' },
+          { label: 'मुख्य टेक्स्ट', id: 'thumbText', placeholder: 'जैसे: TOP 5', type: 'text' },
+          { label: 'कलर थीम', id: 'thumbColor', type: 'select', options: ['बोल्ड रेड और ब्लैक', 'ब्लू और व्हाइट', 'गोल्डन और ब्लैक', 'मिनिमल ग्रे'] },
+          { label: 'कितने विकल्प चाहिए?', id: 'thumbCount', placeholder: '1-3', type: 'number' }
+        ],
+        template: (vals) => `तुम एक सीनियर ग्राफिक डिज़ाइनर और YouTube थंबनेल एक्सपर्ट हो। "${vals.thumbTopic}" विषय पर वीडियो के लिए ${vals.thumbCount || 1} आकर्षक थंबनेल डिज़ाइन आइडिया सुझाओ। हर थंबनेल में "${vals.thumbText}" बड़े और बोल्ड फ़ॉन्ट में हो, कलर थीम ${vals.thumbColor} हो, और CTR बढ़ाने वाला लुक हो। विवरण टेक्स्ट में दो।`
+      },
+      blog: {
+        fields: [
+          { label: 'ब्लॉग का विषय', id: 'blogTopic', placeholder: 'जैसे: डिजिटल मार्केटिंग', type: 'text' },
+          { label: 'लक्षित पाठक', id: 'blogAudience', placeholder: 'जैसे: स्टार्टअप फाउंडर्स', type: 'text' },
+          { label: 'लहज़ा', id: 'blogTone', type: 'select', options: ['पेशेवर', 'मैत्रीपूर्ण', 'प्रेरक'] },
+          { label: 'शब्द सीमा', id: 'blogWords', placeholder: 'जैसे: 800', type: 'number' }
+        ],
+        template: (vals) => `तुम एक अनुभवी कंटेंट राइटर हो। "${vals.blogTopic}" पर एक ब्लॉग पोस्ट लिखो, जो ${vals.blogAudience} के लिए हो। लहज़ा ${vals.blogTone} रखो। लगभग ${vals.blogWords} शब्दों का हो। SEO फ्रेंडली हो और आकर्षक हेडिंग्स हों।`
+      },
+      email: {
+        fields: [
+          { label: 'ईमेल का उद्देश्य', id: 'emailPurpose', placeholder: 'जैसे: न्यूज़लेटर, प्रमोशन', type: 'text' },
+          { label: 'प्राप्तकर्ता', id: 'emailAudience', placeholder: 'जैसे: मौजूदा ग्राहक', type: 'text' },
+          { label: 'मुख्य संदेश', id: 'emailMessage', placeholder: 'क्या कहना है?', type: 'text' }
+        ],
+        template: (vals) => `तुम एक प्रोफेशनल ईमेल कॉपीराइटर हो। "${vals.emailPurpose}" के लिए एक ईमेल लिखो, जो ${vals.emailAudience} को भेजा जाएगा। मुख्य संदेश: ${vals.emailMessage}। सब्जेक्ट लाइन आकर्षक हो, भाषा पेशेवर और स्पष्ट हो।`
+      },
+      social: {
+        fields: [
+          { label: 'प्लैटफ़ॉर्म', id: 'socialPlatform', type: 'select', options: ['Instagram', 'LinkedIn', 'Facebook', 'Twitter'] },
+          { label: 'पोस्ट का उद्देश्य', id: 'socialGoal', placeholder: 'जैसे: प्रोडक्ट लॉन्च', type: 'text' },
+          { label: 'विशेष टेक्स्ट/हैशटैग', id: 'socialTags', placeholder: 'जैसे: #EcoFriendly', type: 'text' }
+        ],
+        template: (vals) => `तुम एक सोशल मीडिया एक्सपर्ट हो। ${vals.socialPlatform} के लिए एक पोस्ट लिखो, उद्देश्य: ${vals.socialGoal}। हैशटैग: ${vals.socialTags}। कैप्शन छोटा, आकर्षक और ट्रेंडी भाषा में हो।`
+      },
+      code: {
+        fields: [
+          { label: 'प्रोग्रामिंग भाषा / फ्रेमवर्क', id: 'codeLang', placeholder: 'जैसे: Python, React', type: 'text' },
+          { label: 'क्या कोड चाहिए?', id: 'codeTask', placeholder: 'जैसे: टू-डू लिस्ट ऐप', type: 'text' },
+          { label: 'अतिरिक्त निर्देश', id: 'codeExtra', placeholder: 'जैसे: कमेंट के साथ', type: 'text' }
+        ],
+        template: (vals) => `तुम एक सीनियर सॉफ्टवेयर डेवलपर हो। ${vals.codeLang} में ${vals.codeTask} के लिए पूरा कोड लिखो। ${vals.codeExtra ? 'अतिरिक्त: ' + vals.codeExtra : ''} कोड अच्छी तरह कमेंटेड और एफिशिएंट हो।`
+      },
+      other: {
+        fields: [
+          { label: 'आप क्या चाहते हैं? (विस्तार से)', id: 'otherDesc', placeholder: 'जैसे: एक कविता, रेज़्यूमे, अनुवाद...', type: 'textarea' }
+        ],
+        template: (vals) => `तुम एक सहायक AI हो। निम्नलिखित अनुरोध के लिए सबसे उपयुक्त प्रॉम्प्ट तैयार करो: "${vals.otherDesc}"। प्रॉम्प्ट में AI की भूमिका, संदर्भ और अपेक्षित फ़ॉर्मेट शामिल करो।`
+      }
+    };
+
+    let selectedCategory = null;
+
+    // कैटेगरी चुनने का इवेंट
+    document.getElementById('categoryGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.cat-card');
+      if (!card) return;
+      document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectedCategory = card.dataset.cat;
+      renderDetailsForm(selectedCategory);
+    });
+
+    function renderDetailsForm(cat) {
+      const config = categoryConfig[cat];
+      if (!config) return;
+      const form = document.getElementById('detailsForm');
+      form.innerHTML = '';
+      config.fields.forEach(field => {
+        const div = document.createElement('div');
+        div.className = 'input-group';
+        const label = document.createElement('label');
+        label.textContent = field.label;
+        div.appendChild(label);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'input-wrapper';
+        let input;
+        if (field.type === 'select') {
+          input = document.createElement('select');
+          input.id = field.id;
+          field.options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.textContent = opt;
+            input.appendChild(option);
+          });
+        } else if (field.type === 'textarea') {
+          input = document.createElement('textarea');
+          input.id = field.id;
+          input.placeholder = field.placeholder || '';
+        } else {
+          input = document.createElement('input');
+          input.type = field.type || 'text';
+          input.id = field.id;
+          input.placeholder = field.placeholder || '';
+        }
+        wrapper.appendChild(input);
+        // माइक बटन हर फील्ड में
+        const micBtn = document.createElement('button');
+        micBtn.type = 'button';
+        micBtn.className = 'mic-btn';
+        micBtn.innerHTML = '🎤';
+        micBtn.id = 'mic_' + field.id;
+        wrapper.appendChild(micBtn);
+        div.appendChild(wrapper);
+        form.appendChild(div);
+      });
+      // माइक इवेंट अटैच करें
+      config.fields.forEach(field => {
+        attachMic('mic_' + field.id, field.id);
+      });
+      document.getElementById('detailsSection').classList.remove('hidden');
+      document.getElementById('outputSection').classList.add('hidden');
+    }
+
+    // जनरेट बटन
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      if (!selectedCategory) return;
+      const config = categoryConfig[selectedCategory];
+      const vals = {};
+      config.fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        vals[f.id] = el ? el.value : '';
+      });
+      const prompt = config.template(vals);
+      document.getElementById('outputText').textContent = prompt;
+      document.getElementById('outputSection').classList.remove('hidden');
+    });
+
+    // कॉपी बटन
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const text = document.getElementById('outputText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('प्रॉम्प्ट कॉपी हो गया!');
+      });
+    });
+  </script>
 </body>
 </html>
