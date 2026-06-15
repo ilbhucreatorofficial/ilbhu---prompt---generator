@@ -1,1 +1,496 @@
 
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ILBHU Pro Prompt Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0b081a 0%, #1a1040 50%, #0f0c29 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      padding: 20px;
+      animation: bgMove 10s ease infinite alternate;
+    }
+    @keyframes bgMove {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
+    }
+    .container { max-width: 900px; width: 100%; }
+
+    /* ----- भाषा टॉगल ----- */
+    .lang-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 30px;
+      display: flex;
+      gap: 5px;
+      padding: 5px;
+      z-index: 10;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      padding: 8px 15px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .lang-btn.active {
+      background: #fbbf24;
+      color: #1e1b4b;
+      box-shadow: 0 0 15px #fbbf2480;
+    }
+
+    /* ----- लोगो ----- */
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin: 40px 0 10px;
+      flex-wrap: wrap;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .logo-svg {
+      width: 70px;
+      height: 70px;
+      filter: drop-shadow(0 0 20px #fbbf24);
+    }
+    .logo-text {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(to right, #fbbf24, #f59e0b, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      text-align: center;
+      color: #c4b5fd;
+      margin-bottom: 35px;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    /* ----- ग्लास कार्ड ----- */
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 30px;
+      margin-bottom: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+      transition: 0.3s;
+    }
+    .glass:hover {
+      border-color: rgba(251,191,36,0.3);
+    }
+    .step-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #ede9fe;
+    }
+
+    /* ----- कैटेगरी ग्रिड ----- */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .cat-card {
+      background: rgba(255,255,255,0.04);
+      border: 2px solid transparent;
+      border-radius: 18px;
+      padding: 16px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+    .cat-card:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: #fbbf24;
+      transform: translateY(-3px);
+    }
+    .cat-card.active {
+      border-color: #fbbf24;
+      background: rgba(251,191,36,0.12);
+      box-shadow: 0 0 25px rgba(251,191,36,0.4);
+    }
+    .cat-emoji { font-size: 2rem; display: block; margin-bottom: 6px; }
+
+    /* ----- इनपुट ----- */
+    .input-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 6px; color: #c7d2fe; font-weight: 600; }
+    .input-wrapper { display: flex; align-items: center; background: rgba(0,0,0,0.4); border-radius: 14px; overflow: hidden; }
+    input, textarea, select {
+      width: 100%; background: transparent; border: none; padding: 14px 16px;
+      font-size: 1rem; color: white; outline: none; font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    input::placeholder, textarea::placeholder { color: #9ca3af; }
+    .mic-btn {
+      background: #fbbf24; border: none; color: #1e1b4b; font-size: 1.3rem;
+      padding: 14px 18px; cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
+    .mic-btn:hover { background: #f59e0b; }
+    select { background: rgba(0,0,0,0.4); }
+
+    /* ----- बटन ----- */
+    .generate-btn {
+      width: 100%; padding: 16px; font-size: 1.2rem; font-weight: 800;
+      border: none; border-radius: 14px;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      color: white; cursor: pointer; transition: all 0.3s; letter-spacing: 1px;
+    }
+    .generate-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #f472b6, #a78bfa);
+      transform: scale(1.02);
+    }
+    .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .copy-btn {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+      color: #fbbf24; padding: 10px 22px; border-radius: 30px; cursor: pointer;
+      font-weight: 700; transition: 0.2s; float: right; margin-bottom: 10px;
+    }
+    .copy-btn:hover { background: rgba(251,191,36,0.2); }
+
+    .output-box {
+      background: #0b0b14; border-radius: 16px; padding: 20px; white-space: pre-wrap;
+      font-family: 'Courier New', monospace; color: #e2e8f0; font-size: 0.95rem;
+      line-height: 1.6; border: 1px solid #2e2e4a; clear: both;
+    }
+
+    .footer { text-align: center; color: #6b7280; margin: 30px 0; font-size: 0.9rem; }
+    .hidden { display: none; }
+
+    @media (max-width: 600px) {
+      .logo-text { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- भाषा टॉगल -->
+  <div class="lang-toggle" id="langToggle">
+    <button class="lang-btn active" data-lang="hi">हिंदी</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+
+  <div class="container">
+    <!-- लोगो -->
+    <div class="logo">
+      <svg class="logo-svg" viewBox="0 0 100 100" fill="none">
+        <defs>
+          <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fbbf24"/>
+            <stop offset="100%" stop-color="#f59e0b"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path d="M55 10 L28 55 H45 L35 90 L78 40 H55 L65 10Z" fill="url(#goldGrad)" stroke="#fbbf24" stroke-width="2" filter="url(#glow)"/>
+        <circle cx="50" cy="50" r="48" stroke="url(#goldGrad)" stroke-width="2" fill="none" opacity="0.3"/>
+      </svg>
+      <span class="logo-text">ILBHU</span>
+    </div>
+    <div class="subtitle" id="subtitleText">सिर्फ़ एक क्लिक — आपकी सोच को प्रोफेशनल AI प्रॉम्प्ट में बदलें</div>
+
+    <!-- स्टेप 1: कैटेगरी -->
+    <div class="glass">
+      <div class="step-title" id="catTitle">1️⃣ आप क्या बनवाना चाहते हैं?</div>
+      <div class="category-grid" id="categoryGrid">
+        <div class="cat-card" data-cat="website"><span class="cat-emoji">🌐</span><span data-i18n="cat-website">वेबसाइट</span></div>
+        <div class="cat-card" data-cat="thumbnail"><span class="cat-emoji">🖼️</span><span data-i18n="cat-thumbnail">YouTube थंबनेल</span></div>
+        <div class="cat-card" data-cat="blog"><span class="cat-emoji">📝</span><span data-i18n="cat-blog">ब्लॉग / आर्टिकल</span></div>
+        <div class="cat-card" data-cat="email"><span class="cat-emoji">📧</span><span data-i18n="cat-email">ईमेल</span></div>
+        <div class="cat-card" data-cat="social"><span class="cat-emoji">📱</span><span data-i18n="cat-social">सोशल मीडिया</span></div>
+        <div class="cat-card" data-cat="code"><span class="cat-emoji">💻</span><span data-i18n="cat-code">कोड / प्रोग्राम</span></div>
+        <div class="cat-card" data-cat="other"><span class="cat-emoji">✨</span><span data-i18n="cat-other">अन्य</span></div>
+      </div>
+    </div>
+
+    <!-- स्टेप 2: डिटेल्स फॉर्म -->
+    <div class="glass hidden" id="detailsSection">
+      <div class="step-title" id="detailsTitle">2️⃣ थोड़ा विस्तार बताएँ</div>
+      <form id="detailsForm"></form>
+      <button class="generate-btn" id="generateBtn">⚡ <span id="genBtnText">जनरेट प्रोफेशनल प्रॉम्प्ट</span></button>
+    </div>
+
+    <!-- आउटपुट -->
+    <div class="glass hidden" id="outputSection">
+      <button class="copy-btn" id="copyBtn">📋 <span id="copyText">कॉपी करें</span></button>
+      <div style="clear:both;"></div>
+      <div class="output-box" id="outputText"></div>
+    </div>
+
+    <div class="footer">Made with ❤️ using ILBHU — No API, Pure Magic</div>
+  </div>
+
+  <script>
+    // ---------- भाषा डेटा ----------
+    const i18n = {
+      hi: {
+        subtitle: "सिर्फ़ एक क्लिक — आपकी सोच को प्रोफेशनल AI प्रॉम्प्ट में बदलें",
+        catTitle: "1️⃣ आप क्या बनवाना चाहते हैं?",
+        detailsTitle: "2️⃣ थोड़ा विस्तार बताएँ",
+        genBtnText: "जनरेट प्रोफेशनल प्रॉम्प्ट",
+        copyText: "कॉपी करें",
+        'cat-website': 'वेबसाइट',
+        'cat-thumbnail': 'YouTube थंबनेल',
+        'cat-blog': 'ब्लॉग / आर्टिकल',
+        'cat-email': 'ईमेल',
+        'cat-social': 'सोशल मीडिया',
+        'cat-code': 'कोड / प्रोग्राम',
+        'cat-other': 'अन्य',
+        voiceLang: 'hi-IN',
+        alertNoSpeech: 'आपके ब्राउज़र में वॉइस सपोर्ट नहीं है।',
+        alertSpeechError: 'वॉइस एरर: ',
+        copySuccess: 'प्रॉम्प्ट कॉपी हो गया!'
+      },
+      en: {
+        subtitle: "Just one click — turn your idea into a professional AI prompt",
+        catTitle: "1️⃣ What do you want to create?",
+        detailsTitle: "2️⃣ Give a few more details",
+        genBtnText: "Generate Professional Prompt",
+        copyText: "Copy",
+        'cat-website': 'Website',
+        'cat-thumbnail': 'YouTube Thumbnail',
+        'cat-blog': 'Blog / Article',
+        'cat-email': 'Email',
+        'cat-social': 'Social Media',
+        'cat-code': 'Code / Program',
+        'cat-other': 'Other',
+        voiceLang: 'en-US',
+        alertNoSpeech: 'Speech recognition not supported in your browser.',
+        alertSpeechError: 'Speech error: ',
+        copySuccess: 'Prompt copied!'
+      }
+    };
+
+    let currentLang = 'hi';
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+      document.getElementById('subtitleText').textContent = i18n[lang].subtitle;
+      document.getElementById('catTitle').textContent = i18n[lang].catTitle;
+      document.getElementById('detailsTitle').textContent = i18n[lang].detailsTitle;
+      document.getElementById('genBtnText').textContent = i18n[lang].genBtnText;
+      document.getElementById('copyText').textContent = i18n[lang].copyText;
+
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.lang === lang);
+      });
+
+      if (selectedCategory) renderDetailsForm(selectedCategory);
+    }
+
+    document.getElementById('langToggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('.lang-btn');
+      if (!btn) return;
+      applyLanguage(btn.dataset.lang);
+    });
+
+    // ---------- वॉइस (सुधार सहित) ----------
+    function attachMic(btnId, targetInputId) {
+      const micBtn = document.getElementById(btnId);
+      const input = document.getElementById(targetInputId);
+      if (!micBtn || !input) return;
+
+      micBtn.addEventListener('click', () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          alert(i18n[currentLang].alertNoSpeech);
+          return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = i18n[currentLang].voiceLang;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          input.value = transcript;
+        };
+        recognition.onerror = (event) => {
+          alert(i18n[currentLang].alertSpeechError + event.error);
+        };
+
+        recognition.start();
+      });
+    }
+
+    // ---------- कैटेगरी कॉन्फ़िग ----------
+    const categoryConfig = {
+      website: {
+        fields: [
+          { key: 'webPurpose', labelHi: 'वेबसाइट का उद्देश्य / नाम', labelEn: 'Website purpose / name', placeholder: 'जैसे: फोटोग्राफी पोर्टफोलियो', type: 'text' },
+          { key: 'webPages', labelHi: 'कितने पेज चाहिए?', labelEn: 'How many pages?', placeholder: 'जैसे: होम, अबाउट, गैलरी', type: 'text' },
+          { key: 'webStyle', labelHi: 'डिज़ाइन शैली', labelEn: 'Design style', type: 'select', optionsHi: ['मॉडर्न और मिनिमल', 'कलरफुल और क्रिएटिव', 'डार्क थीम', 'क्लासिक'], optionsEn: ['Modern & Minimal', 'Colorful & Creative', 'Dark Theme', 'Classic'] },
+          { key: 'webFeatures', labelHi: 'कोई विशेष फीचर?', labelEn: 'Any special feature?', placeholder: 'जैसे: कॉन्टैक्ट फॉर्म, ब्लॉग', type: 'text' }
+        ],
+        template: (vals) => `You are an expert web developer and UI/UX designer. Create complete HTML/CSS code for a website about "${vals.webPurpose}". It should have ${vals.webPages} pages. Design style: ${vals.webStyle}. Special features: ${vals.webFeatures || 'None'}. Code must be clean, commented and fully responsive.`
+      },
+      thumbnail: {
+        fields: [
+          { key: 'thumbTopic', labelHi: 'वीडियो का विषय', labelEn: 'Video topic', placeholder: 'जैसे: Best phones under 20000', type: 'text' },
+          { key: 'thumbText', labelHi: 'मुख्य टेक्स्ट', labelEn: 'Main text', placeholder: 'जैसे: TOP 5', type: 'text' },
+          { key: 'thumbColor', labelHi: 'कलर थीम', labelEn: 'Color theme', type: 'select', optionsHi: ['बोल्ड रेड और ब्लैक', 'ब्लू और व्हाइट', 'गोल्डन और ब्लैक', 'मिनिमल ग्रे'], optionsEn: ['Bold Red & Black', 'Blue & White', 'Golden & Black', 'Minimal Grey'] },
+          { key: 'thumbCount', labelHi: 'कितने विकल्प चाहिए?', labelEn: 'How many options?', placeholder: '1-3', type: 'number' }
+        ],
+        template: (vals) => `You are a senior graphic designer and YouTube thumbnail expert. Suggest ${vals.thumbCount || 1} eye-catching thumbnail design ideas for a video about "${vals.thumbTopic}". Each thumbnail must include "${vals.thumbText}" in big bold font, color theme: ${vals.thumbColor}, and a click-worthy look. Describe each idea in text.`
+      },
+      blog: {
+        fields: [
+          { key: 'blogTopic', labelHi: 'ब्लॉग का विषय', labelEn: 'Blog topic', placeholder: 'जैसे: Digital Marketing', type: 'text' },
+          { key: 'blogAudience', labelHi: 'लक्षित पाठक', labelEn: 'Target audience', placeholder: 'जैसे: Startup founders', type: 'text' },
+          { key: 'blogTone', labelHi: 'लहज़ा', labelEn: 'Tone', type: 'select', optionsHi: ['पेशेवर', 'मैत्रीपूर्ण', 'प्रेरक'], optionsEn: ['Professional', 'Friendly', 'Inspirational'] },
+          { key: 'blogWords', labelHi: 'शब्द सीमा', labelEn: 'Word limit', placeholder: 'जैसे: 800', type: 'number' }
+        ],
+        template: (vals) => `You are an experienced content writer. Write a blog post about "${vals.blogTopic}" for ${vals.blogAudience}. Tone: ${vals.blogTone}. Approximately ${vals.blogWords} words. Include SEO-friendly headings and an engaging intro.`
+      },
+      email: {
+        fields: [
+          { key: 'emailPurpose', labelHi: 'ईमेल का उद्देश्य', labelEn: 'Email purpose', placeholder: 'जैसे: Newsletter, Promotion', type: 'text' },
+          { key: 'emailAudience', labelHi: 'प्राप्तकर्ता', labelEn: 'Recipient', placeholder: 'जैसे: Existing customers', type: 'text' },
+          { key: 'emailMessage', labelHi: 'मुख्य संदेश', labelEn: 'Main message', placeholder: 'क्या कहना है?', type: 'text' }
+        ],
+        template: (vals) => `You are a professional email copywriter. Write an email for "${vals.emailPurpose}" to be sent to ${vals.emailAudience}. Main message: ${vals.emailMessage}. Subject line must be catchy, language professional and clear.`
+      },
+      social: {
+        fields: [
+          { key: 'socialPlatform', labelHi: 'प्लैटफ़ॉर्म', labelEn: 'Platform', type: 'select', optionsHi: ['Instagram', 'LinkedIn', 'Facebook', 'Twitter'], optionsEn: ['Instagram', 'LinkedIn', 'Facebook', 'Twitter'] },
+          { key: 'socialGoal', labelHi: 'पोस्ट का उद्देश्य', labelEn: 'Post goal', placeholder: 'जैसे: Product launch', type: 'text' },
+          { key: 'socialTags', labelHi: 'विशेष टेक्स्ट/हैशटैग', labelEn: 'Special text/hashtags', placeholder: 'जैसे: #EcoFriendly', type: 'text' }
+        ],
+        template: (vals) => `You are a social media expert. Write a ${vals.socialPlatform} post for: ${vals.socialGoal}. Include hashtags: ${vals.socialTags}. Caption should be short, catchy, and in trendy language.`
+      },
+      code: {
+        fields: [
+          { key: 'codeLang', labelHi: 'प्रोग्रामिंग भाषा / फ्रेमवर्क', labelEn: 'Language / Framework', placeholder: 'जैसे: Python, React', type: 'text' },
+          { key: 'codeTask', labelHi: 'क्या कोड चाहिए?', labelEn: 'What code do you need?', placeholder: 'जैसे: To-do list app', type: 'text' },
+          { key: 'codeExtra', labelHi: 'अतिरिक्त निर्देश', labelEn: 'Extra instructions', placeholder: 'जैसे: With comments', type: 'text' }
+        ],
+        template: (vals) => `You are a senior software developer. Write complete ${vals.codeLang} code for: ${vals.codeTask}. ${vals.codeExtra ? 'Additional: ' + vals.codeExtra : ''} Code must be well-commented and efficient.`
+      },
+      other: {
+        fields: [
+          { key: 'otherDesc', labelHi: 'आप क्या चाहते हैं? (विस्तार से)', labelEn: 'What do you want? (detailed)', placeholder: 'जैसे: एक कविता, रेज़्यूमे, अनुवाद...', type: 'textarea' }
+        ],
+        template: (vals) => `You are a helpful AI. Based on the following request, generate the most appropriate prompt: "${vals.otherDesc}". Include role, context, and expected format.`
+      }
+    };
+
+    let selectedCategory = null;
+
+    // कैटेगरी चयन
+    document.getElementById('categoryGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.cat-card');
+      if (!card) return;
+      document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectedCategory = card.dataset.cat;
+      renderDetailsForm(selectedCategory);
+      // ऑटो-स्क्रॉल
+      document.getElementById('detailsSection').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function renderDetailsForm(cat) {
+      const config = categoryConfig[cat];
+      if (!config) return;
+      const form = document.getElementById('detailsForm');
+      form.innerHTML = '';
+      config.fields.forEach(field => {
+        const div = document.createElement('div');
+        div.className = 'input-group';
+        const label = document.createElement('label');
+        label.textContent = currentLang === 'hi' ? field.labelHi : field.labelEn;
+        div.appendChild(label);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'input-wrapper';
+        let input;
+        if (field.type === 'select') {
+          input = document.createElement('select');
+          input.id = field.key;
+          const options = currentLang === 'hi' ? field.optionsHi : field.optionsEn;
+          options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.textContent = opt;
+            input.appendChild(option);
+          });
+        } else if (field.type === 'textarea') {
+          input = document.createElement('textarea');
+          input.id = field.key;
+          input.placeholder = field.placeholder || '';
+        } else {
+          input = document.createElement('input');
+          input.type = field.type || 'text';
+          input.id = field.key;
+          input.placeholder = field.placeholder || '';
+        }
+        wrapper.appendChild(input);
+        const micBtn = document.createElement('button');
+        micBtn.type = 'button';
+        micBtn.className = 'mic-btn';
+        micBtn.innerHTML = '🎤';
+        micBtn.id = 'mic_' + field.key;
+        wrapper.appendChild(micBtn);
+        div.appendChild(wrapper);
+        form.appendChild(div);
+      });
+      config.fields.forEach(field => {
+        attachMic('mic_' + field.key, field.key);
+      });
+      document.getElementById('detailsSection').classList.remove('hidden');
+      document.getElementById('outputSection').classList.add('hidden');
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      if (!selectedCategory) return;
+      const config = categoryConfig[selectedCategory];
+      const vals = {};
+      config.fields.forEach(f => {
+        const el = document.getElementById(f.key);
+        vals[f.key] = el ? el.value : '';
+      });
+      const prompt = config.template(vals);
+      document.getElementById('outputText').textContent = prompt;
+      document.getElementById('outputSection').classList.remove('hidden');
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const text = document.getElementById('outputText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert(i18n[currentLang].copySuccess);
+      });
+    });
+  </script>
+</body>
+</html>
